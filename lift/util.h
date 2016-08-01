@@ -78,4 +78,16 @@ static inline LIFT_HOST_DEVICE T idivup(const T a, const T b)
     return (a + (b - 1)) / b;
 }
 
+// Retrieve the warp size for this device
+static inline uint32 get_warp_size(void)
+{
+    int active_device;
+    cudaGetDevice(&active_device);
+
+    struct cudaDeviceProp dp;
+    cudaGetDeviceProperties(&dp, active_device);
+
+    return dp.warpSize;
+}
+
 } // namespace lift
