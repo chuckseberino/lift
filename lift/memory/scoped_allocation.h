@@ -49,10 +49,20 @@ struct scoped_allocation : public persistent_allocation<system, T, index_type, a
     typedef persistent_allocation<system, T, index_type, allocator> base;
     using base::base;
 
+    scoped_allocation() = default;
+    // provide move-based operations
+    scoped_allocation(scoped_allocation&&) = default;
+    scoped_allocation& operator=(scoped_allocation&&) = default;
+
     ~scoped_allocation()
     {
         base::free();
     }
+
+    // disallow copy construction, which is inherently a thin copy.
+    scoped_allocation(const scoped_allocation& other) = delete;
+    // disallow assignment
+    scoped_allocation& operator=(const scoped_allocation&) = delete;
 };
 
 template <target_system system,
