@@ -50,18 +50,32 @@ struct scoped_allocation : public persistent_allocation<system, T, index_type, a
     using base::base;
 
     scoped_allocation() = default;
-    // provide move-based operations
-    scoped_allocation(scoped_allocation&&) = default;
-    scoped_allocation& operator=(scoped_allocation&&) = default;
+
+    // Allow move construction, but ensure other gets cleared.
+    scoped_allocation(scoped_allocation&& other)
+        : base(other) // copy
+    {
+         other.storage = nullptr;
+         other.storage_size = 0;
+    }
+
+    // Allow move assignment, but ensure other gets cleared.
+    scoped_allocation& operator=(scoped_allocation&& other)
+    {
+        base::operator=(other);
+        other.storage = nullptr;
+        other.storage_size = 0;
+        return *this;
+    }
 
     ~scoped_allocation()
     {
         base::free();
     }
 
-    // disallow copy construction, which is inherently a thin copy.
+    // Disallow copy construction, which is inherently a thin copy.
     scoped_allocation(const scoped_allocation& other) = delete;
-    // disallow assignment
+    // Disallow general assignment.
     scoped_allocation& operator=(const scoped_allocation&) = delete;
 };
 
