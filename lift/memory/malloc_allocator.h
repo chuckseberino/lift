@@ -42,12 +42,14 @@ struct malloc_allocator
 {
     void *allocate(size_t n_bytes)
     {
-        return malloc(n_bytes);
+        void *p = nullptr;
+        cudaMallocHost(&p, n_bytes);
+        return p;
     }
 
     void deallocate(const void *p)
     {
-        free((void *)p);
+        cudaFree((void *)p);
     }
 };
 
