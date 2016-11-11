@@ -64,12 +64,14 @@ template <typename InputIterator, typename UnaryFunction>
 inline void parallel<cuda>::for_each(InputIterator first,
                                      InputIterator last,
                                      UnaryFunction f,
-                                     int2 launch_parameters)
+                                     int2 launch_parameters,
+                                     cudaStream_t stream)
 {
     lift::for_each(first,
                    last - first,
                    f,
-                   launch_parameters);
+                   launch_parameters,
+                   stream);
 }
 
 // shortcut to run for_each on a pointer
@@ -77,12 +79,14 @@ template <>
 template <typename T, typename UnaryFunction>
 inline void parallel<cuda>::for_each(pointer<cuda, T>& data,
                                      UnaryFunction f,
-                                     int2 launch_parameters)
+                                     int2 launch_parameters,
+                                     cudaStream_t stream)
 {
     lift::for_each(data.begin(),
                    data.size(),
                    f,
-                   launch_parameters);
+                   launch_parameters,
+                   stream);
 }
 
 // shortcut to run for_each on [range.x, range.y[
@@ -90,12 +94,14 @@ template <>
 template <typename UnaryFunction>
 inline void parallel<cuda>::for_each(uint2 range,
                                      UnaryFunction f,
-                                     int2 launch_parameters)
+                                     int2 launch_parameters,
+                                     cudaStream_t stream)
 {
     lift::for_each(thrust::make_counting_iterator(range.x),
                    range.y - range.x,
                    f,
-                   launch_parameters);
+                   launch_parameters,
+                   stream);
 }
 
 // shortcut to run for_each on [0, end[
@@ -103,12 +109,14 @@ template <>
 template <typename UnaryFunction>
 inline void parallel<cuda>::for_each(uint32 end,
                                      UnaryFunction f,
-                                     int2 launch_parameters)
+                                     int2 launch_parameters,
+                                     cudaStream_t stream)
 {
     lift::for_each(thrust::make_counting_iterator(0u),
                    end,
                    f,
-                   launch_parameters);
+                   launch_parameters,
+                   stream);
 }
 
 template <typename T>
@@ -130,17 +138,19 @@ template <>
 template <typename InputIterator, typename T>
 inline void parallel<cuda>::fill(InputIterator begin,
                                  InputIterator end,
-                                 T value)
+                                 T value,
+                                 cudaStream_t stream)
 {
-    for_each(begin, end, fill_by_reference_cuda<T>(value));
+    for_each(begin, end, fill_by_reference_cuda<T>(value), {0, 0}, stream);
 }
 
 template <>
 template <typename T>
 inline void parallel<cuda>::fill(pointer<cuda, T>& vector,
-                                 T value)
+                                 T value,
+                                 cudaStream_t stream)
 {
-    for_each(vector, fill_by_reference_cuda<T>(value));
+    for_each(vector, fill_by_reference_cuda<T>(value), {0, 0}, stream);
 }
 
 template <>

@@ -35,6 +35,8 @@
 #include <lift/backends.h>
 #include <lift/memory.h>
 
+#include <gpu/CudaGpu.hpp>
+
 namespace lift {
 
 /**
@@ -57,12 +59,14 @@ struct parallel
      * \param end               Iterator pointing at the end of the range to be processed.
      * \param f                 The function object to be applied to each item in the input.
      * \param launch_parameters Grid launch parameters for GPU backend.
+     * \param stream            The stream on which to launch the function.
      */
     template <typename InputIterator, typename UnaryFunction>
     static inline void for_each(InputIterator begin,
                                 InputIterator end,
                                 UnaryFunction f,
-                                int2 launch_parameters = { 0, 0 });
+                                int2 launch_parameters = { 0, 0 },
+                                cudaStream_t stream = nullptr);
 
     /**
      * Pointer version of for-each. Applies \c UnaryFunction \c f to each element behind \c vector.
@@ -73,11 +77,13 @@ struct parallel
      * \param vector            The memory region to apply \c f to
      * \param f                 UnaryFunction to apply to each element in \c vector
      * \param launch_parameters Same as in \ref for_each
+     * \param stream            Same as in \ref for_each
      */
     template <typename T, typename UnaryFunction>
     static inline void for_each(pointer<system, T>& vector,
                                 UnaryFunction f,
-                                int2 launch_parameters = { 0, 0 });
+                                int2 launch_parameters = { 0, 0 },
+                                cudaStream_t stream = nullptr);
 
     /**
      * Range-based version of for-each. Applies \c UnaryFunction \c f to each integer in the range
@@ -88,11 +94,13 @@ struct parallel
      * \param range             Integer range to iterate over.
      * \param f                 Same as in \ref for_each
      * \param launch_parameters Same as in \ref for_each
+     * \param stream            Same as in \ref for_each
      */
     template <typename UnaryFunction>
     static inline void for_each(uint2 range,
                                 UnaryFunction f,
-                                int2 launch_parameters = { 0, 0 });
+                                int2 launch_parameters = { 0, 0 },
+                                cudaStream_t stream = nullptr);
 
     /**
      * 0-based range version of for-each. Applies \c UnaryFunction \c f to each integer in the range
@@ -103,11 +111,13 @@ struct parallel
      * \param end               End point of the interval to iterate over.
      * \param f                 Same as in \ref for_each
      * \param launch_parameters Same as in \ref for_each
+     * \param stream            Same as in \ref for_each
      */
     template <typename UnaryFunction>
     static inline void for_each(uint32 end,
                                 UnaryFunction f,
-                                int2 launch_parameters = { 0, 0 });
+                                int2 launch_parameters = { 0, 0 },
+                                cudaStream_t stream = nullptr);
 
     /**
      * Performs a parallel inclusive scan on [first, first + len[, using \c op as the scan operator.
@@ -696,11 +706,13 @@ struct parallel
      * \param begin             Iterator pointing at the first element to be processed.
      * \param end               Iterator pointing at the end of the range to be processed.
      * \param value             The value with which to fill the range.
+     * \param stream            The stream on which to launch the fill operation.
      */
     template <typename InputIterator, typename T>
     static inline void fill(InputIterator begin,
                             InputIterator end,
-                            T value);
+                            T value,
+                            cudaStream_t stream = nullptr);
     /**
      * Pointer version of fill. Fills each element of vector with value
      *
@@ -708,10 +720,12 @@ struct parallel
      *
      * \param vector            The memory region to fill with value
      * \param value             Value to fill each element in  vector
+     * \param stream            The stream on which to launch the fill operation.
      */
     template <typename T>
     static inline void fill(pointer<system, T>& vector,
-                            T value);
+                            T value,
+                            cudaStream_t stream = nullptr);
 
     /**
      * Synchronizes the compute device.

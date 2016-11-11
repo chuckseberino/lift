@@ -50,7 +50,7 @@ __global__ void for_each_kernel(InputIterator input, size_t length, Function fun
 }
 
 template <typename InputIterator, typename Function>
-void for_each(InputIterator input, size_t length, Function func, int2 launch_params = { 0, 0 })
+void for_each(InputIterator input, size_t length, Function func, int2 launch_params = { 0, 0 }, cudaStream_t stream = nullptr)
 {
     if (length == 0)
     {
@@ -69,18 +69,18 @@ void for_each(InputIterator input, size_t length, Function func, int2 launch_par
         // figure out the type of the index required
         if (uint64(length) + params_32.x * params_32.y >= uint64(1 << 31))
         {
-            for_each_kernel<InputIterator, Function, uint64> <<<params_64.x, params_64.y>>>(input, length, func);
+            for_each_kernel<InputIterator, Function, uint64> <<<params_64.x, params_64.y, 0, stream>>>(input, length, func);
         } else {
-            for_each_kernel<InputIterator, Function, uint32> <<<params_32.x, params_32.y>>>(input, length, func);
+            for_each_kernel<InputIterator, Function, uint32> <<<params_32.x, params_32.y, 0, stream>>>(input, length, func);
         }
     } else if (launch_params.x == 0) {
         launch_params.x = int((length + launch_params.y - 1) / launch_params.y);
 
         if (uint64(length) + launch_params.x * launch_params.y >= uint64(1 << 31))
         {
-            for_each_kernel<InputIterator, Function, uint64> <<<launch_params.x, launch_params.y>>>(input, length, func);
+            for_each_kernel<InputIterator, Function, uint64> <<<launch_params.x, launch_params.y, 0, stream>>>(input, length, func);
         } else {
-            for_each_kernel<InputIterator, Function, uint32> <<<launch_params.x, launch_params.y>>>(input, length, func);
+            for_each_kernel<InputIterator, Function, uint32> <<<launch_params.x, launch_params.y, 0, stream>>>(input, length, func);
         }
     } else {
         // make sure the launch parameters are not overcommitted
@@ -95,9 +95,9 @@ void for_each(InputIterator input, size_t length, Function func, int2 launch_par
         // figure out the type of the index required
         if (uint64(length) + launch_params.x * launch_params.y >= uint64(1 << 31))
         {
-            for_each_kernel<InputIterator, Function, uint64> <<<launch_params.x, launch_params.y>>>(input, length, func);
+            for_each_kernel<InputIterator, Function, uint64> <<<launch_params.x, launch_params.y, 0, stream>>>(input, length, func);
         } else {
-            for_each_kernel<InputIterator, Function, uint32> <<<launch_params.x, launch_params.y>>>(input, length, func);
+            for_each_kernel<InputIterator, Function, uint32> <<<launch_params.x, launch_params.y, 0, stream>>>(input, length, func);
         }
     }
 }

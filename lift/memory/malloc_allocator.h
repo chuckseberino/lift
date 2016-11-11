@@ -49,7 +49,7 @@ struct malloc_allocator
 
     void deallocate(const void *p)
     {
-        cudaFree((void *)p);
+        cudaFreeHost((void *)p);
     }
 };
 
