@@ -20,12 +20,19 @@ if (NOT DEFINED GPU_ARCHITECTURE)
 endif ()
 
 # build dependencies
+if (TRUE)
+    # Direct Lift to use pre-packaged versions of CUB and TBB and use the
+    # default Thrust from CUDA.
+    list(APPEND INCLUDE_DIRS ${CUB_INCLUDE_DIRS} ${TBB_INCLUDE_DIRS})
+    list(APPEND LINK_LIBS ${TBB_LIBRARY})
+else ()
 if (USE_EXTERNAL_THRUST)
     include("cmake/thrust.cmake")
 endif()
 
 include("cmake/cub.cmake")
 include("cmake/tbb.cmake")
+endif ()
 
 # locate required packages
 # CUDA 7.0 is required to build
@@ -65,7 +72,7 @@ include("gcc.cmake")
 include_directories(${INCLUDE_DIRS})
 
 add_subdirectory(src)
-add_subdirectory(tests)
+#add_subdirectory(tests)
 
 get_directory_property(has_parent_scope PARENT_DIRECTORY)
 if (has_parent_scope)
