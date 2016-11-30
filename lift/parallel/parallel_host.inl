@@ -47,8 +47,7 @@ template <typename InputIterator, typename UnaryFunction>
 inline void parallel<host>::for_each(InputIterator first,
                                      InputIterator last,
                                      UnaryFunction f,
-                                     int2 launch_parameters,
-                                     cudaStream_t stream)
+                                     int2 launch_parameters)
 {
     thrust::for_each(lift::backend_policy<host>::execution_policy(),
                      first,
@@ -61,8 +60,7 @@ template <>
 template <typename T, typename UnaryFunction>
 inline void parallel<host>::for_each(pointer<host, T>& vector,
                                      UnaryFunction f,
-                                     int2 launch_parameters,
-                                     cudaStream_t stream)
+                                     int2 launch_parameters)
 {
     thrust::for_each(lift::backend_policy<host>::execution_policy(),
                      vector.begin(),
@@ -75,8 +73,7 @@ template <>
 template <typename UnaryFunction>
 inline void parallel<host>::for_each(uint2 range,
                                      UnaryFunction f,
-                                     int2 launch_parameters,
-                                     cudaStream_t stream)
+                                     int2 launch_parameters)
 {
     thrust::for_each(lift::backend_policy<host>::execution_policy(),
                      thrust::make_counting_iterator(range.x),
@@ -89,8 +86,7 @@ template <>
 template <typename UnaryFunction>
 inline void parallel<host>::for_each(uint32 end,
                                      UnaryFunction f,
-                                     int2 launch_parameters,
-                                     cudaStream_t stream)
+                                     int2 launch_parameters)
 {
     thrust::for_each(lift::backend_policy<host>::execution_policy(),
                      thrust::make_counting_iterator(0u),
@@ -118,8 +114,7 @@ template <>
 template <typename InputIterator, typename T>
 inline void parallel<host>::fill(InputIterator begin,
                                  InputIterator end,
-                                 T value,
-                                 cudaStream_t stream)
+                                 T value)
 {
     for_each(begin, end, fill_by_reference_host<T>(value));
 }
@@ -127,8 +122,7 @@ inline void parallel<host>::fill(InputIterator begin,
 template <>
 template <typename T>
 inline void parallel<host>::fill(pointer<host, T>& vector,
-                                 T value,
-                                 cudaStream_t stream)
+                                 T value)
 {
     for_each(vector, fill_by_reference_host<T>(value));
 }

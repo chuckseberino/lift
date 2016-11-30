@@ -42,14 +42,27 @@ struct malloc_allocator
 {
     void *allocate(size_t n_bytes)
     {
-        void *p = nullptr;
-        cudaMallocHost(&p, n_bytes);
-        return p;
+        // check for presence of GPU
+        int device;
+        if (cudaGetDevice(&device) == cudaSuccess)
+        {
+            void *p = nullptr;
+            cudaMallocHost(&p, n_bytes);
+            return p;
+        } else {
+            return malloc(n_bytes);
+        }
     }
 
     void deallocate(const void *p)
     {
-        cudaFreeHost((void *)p);
+        int device;
+        if (cudaGetDevice(&device) == cudaSuccess)
+        {
+            cudaFreeHost((void *)p);
+        } else {
+            free((void *)p);
+        }
     }
 };
 
