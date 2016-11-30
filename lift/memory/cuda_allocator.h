@@ -42,7 +42,10 @@ struct cuda_allocator
     void *allocate(size_t n_bytes)
     {
         void *ret;
-        cudaMalloc(&ret, n_bytes);
+        if (cudaSuccess != cudaMalloc(&ret, n_bytes))
+        {
+            printf("ERROR: cudaMalloc with %lu bytes\n", n_bytes);
+        }
         return ret;
     }
 
